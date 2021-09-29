@@ -10,8 +10,8 @@ LCD_I2C lcd(0x27);
 
 int side = DISABLED;
 
-unsigned long time_left = 300000;
-unsigned long time_right = 300000;
+long time_left = 5000;
+long time_right = 5000;
 
 unsigned long last_time = 0;
 
@@ -55,11 +55,21 @@ void count_time()
   if (side == LEFT) {
     time_left -= millis() - last_time;
     last_time = millis();
+
+    if (time_left <= 0) {
+      time_left = 0;
+      side = DISABLED;
+    }
   }
 
   if (side == RIGHT) {
     time_right -= millis() - last_time;
     last_time = millis();
+
+    if (time_right <= 0) {
+      time_right = 0;
+      side = DISABLED;
+    }
   }
 }
 
