@@ -2,9 +2,18 @@
 #define l_button 5
 #define r_button 4
 
+#define DISABLED 0
+#define LEFT -1
+#define RIGHT 1
+
 LCD_I2C lcd(0x27);
 
-int side = 0;
+int side = DISABLED;
+
+unsigned long time_left = 300000;
+unsigned long time_right = 300000;
+
+unsigned long last_time = 0;
 
 void setup()
 {
@@ -22,19 +31,45 @@ void setup()
 
 void loop()
 {
-  if (digitalRead(l_button) == LOW) {
-    side = 0;
+  controls();
+  count_time();
+  display_clocks();
+}
+
+void controls() 
+{
+  // TODO: Add resetting by pressing both buttons
+   
+  if (digitalRead(l_button) == LOW && side != LEFT) {
+    side = LEFT;
+    last_time = millis();
   }
-  else if (digitalRead(r_button) == LOW) {
-    side = 1;
+  else if (digitalRead(r_button) == LOW && side != RIGHT) {
+    side = RIGHT;
+    last_time = millis();
+  }
+}
+
+void count_time()
+{
+  if (side == LEFT) {
+    time_left -= millis() - last_time;
+    last_time = millis();
   }
 
-  if (side == 0) {
-    lcd.setCursor(0, 0);
-    lcd.print(millis());
-  } else if (side ==1) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("right");
+  if (side == RIGHT) {
+    time_right -= millis() - last_time;
+    last_time = millis();
   }
+}
+
+void display_clocks()
+{
+//  String str_left = String(time_left, DEC);
+  
+  lcd.setCursor(0,0);  
+  lcd.print(time_left);
+
+  lcd.setCursor(10, 0);
+  lcd.print(time_right);
 }
